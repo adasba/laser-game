@@ -13,7 +13,7 @@ var express = require('express');
 var app = express();
 
 app.get(/[\s\S]*/, function (req, res) {
-    if (!/auth.json/.test(req.url)) {
+    if (!/auth.json/.test(req.url) && !/log.txt/.test(req.url)) {
         res.sendFile(__dirname + req.url, {}, function (err) {
             if (err) {
                 res.sendFile(__dirname + "/404.html");
