@@ -196,7 +196,7 @@ var player = {
                     }
                 } else {
                     this.y = e.center.y + e.h / 2 + hitbox.h / 2 + 0.1;
-                    this.dy *= -0.5;
+                    this.dy *= -0.25;
                 }
             }
         }
@@ -217,6 +217,7 @@ var tileData;
 var tilePieceMap = [];
 
 var tileMapWidth = 0;
+var tileMapHeight = 0;
 
 var canv = document.createElement("canvas");
 
@@ -226,14 +227,22 @@ dataFromImg("maptest.png", function (data) {
         //tilePieceMap = tilePieceArray(getNeighbors(getBooleanGrid(data), data.width));
         tilePieceMap = tilePieceArray(getNeighborsWithColor(tileMapData.data, tileMapData.width));
         tileMapWidth = data.width;
+        tileMapHeight = data.height;
         canv.width = tileMapWidth * 16;
         canv.height = data.height * 16;
-        grabImages([{ name: "tilesettest", src: "tileset3.png"}, { name: "truss", src: "tileset_truss.png"}], function (tileImage) {
+        grabImages([{ name: "tilesettest", src: "tileset3.png"}, { name: "truss", src: "tileset_truss.png"}, { name: "black", src: "tileset_black.png"}], function (tileImage) {
             tileData = tileImage.tilesettest; 
             var mapctx = canv.getContext("2d");
             drawTilePieceArray(tilePieceMap, tileImage, canv.getContext("2d"), tileMapWidth, 16, 16, tileMapData.data, { 0: "tilesettest", 255: "truss", 16777215: undefined });
             mapctx.globalCompositeOperation = "source-atop";
-            drawTaxicabVoronoi(0, 0, tileMapWidth * 16, 256, canv.getContext("2d"), 400);
+            var mapLayer2 = document.createElement("canvas");
+            var mapLayer2Context = mapLayer2.getContext("2d");
+            mapLayer2.width = canv.width;
+            mapLayer2.height = canv.height;
+            drawTilePieceArray(tilePieceMap, tileImage, mapLayer2Context, tileMapWidth, 16, 16, tileMapData.data, { 0: "black", 16777215: undefined });
+            mapLayer2Context.globalCompositeOperation = "source-in";
+            taxicabVoronoiImage(0, 0, tileMapWidth * 16, tileMapHeight * 16, mapLayer2Context, 700, "#00000066", "#00000033");
+            mapctx.drawImage(mapLayer2, 0, 0);
             loop();
         });
     });
@@ -261,6 +270,11 @@ for (var i = 0; 10 > i; i++) {
 
 var screenshake = 0;
 
+var background = document.createElement("canvas");
+background.width = 2048;
+background.height = 512;
+taxicabVoronoiImage(0, 0, 2048, 512, background.getContext("2d"), 700, "#00000066", "#00000033");
+
 function loop() {
     screenshake *= 0.7;
     windowScroll.x -= (windowScroll.x - (player.x + mousexs / 2 + screenshake * (Math.random() - 0.5))) / 10;
@@ -268,11 +282,12 @@ function loop() {
     context.clearRect(0, 0, c.width, c.height);
     player.physics();
 
-    context.fillStyle = "#333333";
+    context.fillStyle = "#2A2A2A";
     context.fillRect(0, 0, c.width, c.height);
 
     context.save();
     context.translate(c.width / 2 - Math.round(windowScroll.x), c.height / 2 - Math.round(windowScroll.y));
+    context.drawImage(background, Math.round(windowScroll.x * -0.25), Math.round(windowScroll.y * -0.25));
     //obst.forEach(e => e.draw());
     //drawTilePieceArray(tilePieceMap, tileData, context, tileMapWidth, 16, 16);
     context.drawImage(canv, 0, 0);
