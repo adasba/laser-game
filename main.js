@@ -287,7 +287,7 @@ function loop() {
 
     context.save();
     context.translate(c.width / 2 - Math.round(windowScroll.x), c.height / 2 - Math.round(windowScroll.y));
-    context.drawImage(background, Math.round(windowScroll.x * -0.25), Math.round(windowScroll.y * -0.25));
+    context.drawImage(background, Math.round(windowScroll.x * 0.75) - 192, Math.round(windowScroll.y * 0.75) - 108);
     //obst.forEach(e => e.draw());
     //drawTilePieceArray(tilePieceMap, tileData, context, tileMapWidth, 16, 16);
     context.drawImage(canv, 0, 0);
